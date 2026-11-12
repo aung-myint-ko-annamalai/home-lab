@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { Product, NewProduct } from "@/types/product";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface ProductsState {
   items: Product[];
@@ -23,7 +23,7 @@ export const fetchProducts = createAsyncThunk(
     const res = await fetch(`${API_URL}/api/products`);
     if (!res.ok) throw new Error("Failed to fetch products");
     return (await res.json()) as Product[];
-  }
+  },
 );
 
 export const createProduct = createAsyncThunk(
@@ -38,7 +38,7 @@ export const createProduct = createAsyncThunk(
     const data = await res.json();
     // API returns an array with the created product
     return (Array.isArray(data) ? data[0] : data) as Product;
-  }
+  },
 );
 
 const productsSlice = createSlice({

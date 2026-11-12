@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { createProduct } from "@/store/features/productsSlice";
 import type { NewProduct } from "@/types/product";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +24,8 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Plus } from "lucide-react";
+import { createProduct } from "@/actions/action";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const defaultForm: NewProduct = {
   name: "",
@@ -39,12 +40,15 @@ const defaultForm: NewProduct = {
 };
 
 export function AddProductDialog() {
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<NewProduct>(defaultForm);
-  const dispatch = useAppDispatch();
   const { creating } = useAppSelector((s) => s.products);
 
-  const handleChange = (field: keyof NewProduct, value: string | number | boolean | null) => {
+  const handleChange = (
+    field: keyof NewProduct,
+    value: string | number | boolean | null,
+  ) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -60,10 +64,17 @@ export function AddProductDialog() {
     }));
   };
 
+  const mutation = useMutation({
+    mutationFn: createProduct,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return;
-    await dispatch(createProduct(form));
+    mutation.mutate(form);
     setForm(defaultForm);
     setOpen(false);
   };
@@ -139,7 +150,9 @@ export function AddProductDialog() {
                 min="0"
                 placeholder="0"
                 value={form.stock}
-                onChange={(e) => handleChange("stock", parseInt(e.target.value) || 0)}
+                onChange={(e) =>
+                  handleChange("stock", parseInt(e.target.value) || 0)
+                }
                 required
               />
             </div>
@@ -186,7 +199,7 @@ export function AddProductDialog() {
               onChange={(e) =>
                 handleChange(
                   "categoryId",
-                  e.target.value ? parseInt(e.target.value) : null
+                  e.target.value ? parseInt(e.target.value) : null,
                 )
               }
             />

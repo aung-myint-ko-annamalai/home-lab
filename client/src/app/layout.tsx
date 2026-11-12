@@ -4,6 +4,7 @@ import "./globals.css";
 import { StoreProvider } from "@/components/providers/StoreProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     "A home lab for experimenting with full stack development and cloud technologies.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
@@ -31,8 +32,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider>
           <StoreProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
+            <QueryProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+            </QueryProvider>
           </StoreProvider>
         </ThemeProvider>
       </body>
